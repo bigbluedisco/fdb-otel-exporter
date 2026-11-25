@@ -34,6 +34,13 @@ use watch_logs::watch_logs;
 
 const TRACE_LOG_RETENTION_FILES: usize = 7;
 
+// Static musl builds are what gets deployed next to FoundationDB. musl's allocator
+// let the resident set grow without bound under this workload even though live
+// allocations were flat, so those builds use mimalloc instead.
+#[cfg(target_env = "musl")]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging, metrics infrastructure, and start watching FDB trace logs.
