@@ -28,6 +28,12 @@ toml = "0.8"
 tracing-appender = "0.2"
 async-trait = "0.1"
 
+# musl's malloc never returns the memory this workload fragments (scrape buffers
+# interleaved with small cross-thread allocations from the blocking pool): RSS grew
+# ~0.3-1 GB/day on static musl builds while live allocations stayed flat.
+[target.'cfg(target_env = "musl")'.dependencies]
+mimalloc = { version = "0.1", default-features = false }
+
 [dev-dependencies]
 tempfile = "3.10"
 vfs = "0.12"
